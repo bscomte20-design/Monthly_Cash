@@ -138,6 +138,19 @@ let viewMode = 'deposit';
 let data = {};
 let openDay = null;
 
+const STORAGE_KEY = 'shopCalendarData_v1';
+
+function saveData() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) data = JSON.parse(saved);
+  } catch(e) { data = {}; }
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -151,10 +164,10 @@ function saveToFile() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = '정산데이터.json';
+  a.download = '정산데이터_백업.json';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('✅ 저장 완료! 정산데이터.json 파일을 보관하세요.');
+  showToast('✅ 백업 파일 저장 완료!');
 }
 
 function loadFromFile(event) {
@@ -164,6 +177,7 @@ function loadFromFile(event) {
   reader.onload = (e) => {
     try {
       data = JSON.parse(e.target.result);
+      saveData();
       renderCalendar();
       showToast('✅ 데이터를 불러왔습니다!');
     } catch {
@@ -321,6 +335,7 @@ function addEntry(d) {
   const k = key(curYear, curMonth, d);
   if (!data[k]) data[k] = [];
   data[k].push({ platform, type, amount });
+  saveData();
   renderModalContent(d);
   renderCalendar();
 }
@@ -328,6 +343,7 @@ function addEntry(d) {
 function delEntry(d, i) {
   const k = key(curYear, curMonth, d);
   data[k].splice(i, 1);
+  saveData();
   renderModalContent(d);
   renderCalendar();
 }
@@ -342,6 +358,7 @@ document.getElementById('viewTabs').addEventListener('click', e => {
   renderCalendar();
 });
 
+loadData();
 renderLegend();
 renderCalendar();
 </script>
