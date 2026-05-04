@@ -7,15 +7,7 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; padding: 24px 16px; }
-  h1 { font-size: 22px; font-weight: 600; margin-bottom: 12px; }
-  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-  .save-btns { display: flex; gap: 6px; }
-  .btn-save { background: #1a1a1a; color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 5px; }
-  .btn-save:hover { background: #333; }
-  .btn-load { background: #fff; color: #1a1a1a; border: 1px solid #ddd; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 5px; }
-  .btn-load:hover { background: #f5f5f5; }
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-  .toast.show { opacity: 1; }
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 20px; }
 
   .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .month-title { font-size: 20px; font-weight: 600; }
@@ -86,17 +78,7 @@
 </head>
 <body>
 
-<div class="top-bar">
-  <h1>🛒 쇼핑몰 정산 캘린더</h1>
-  <div class="save-btns">
-    <label class="btn-load">
-      📂 불러오기
-      <input type="file" accept=".json" id="loadFile" style="display:none" onchange="loadFromFile(event)">
-    </label>
-    <button class="btn-save" onclick="saveToFile()">💾 저장하기</button>
-  </div>
-</div>
-<div class="toast" id="toast"></div>
+<h1>🛒 쇼핑몰 정산 캘린더</h1>
 
 <div class="header">
   <button class="nav-btn" id="prevBtn">◀ 이전달</button>
@@ -107,9 +89,9 @@
 <div class="legend" id="legend"></div>
 
 <div class="tab-row" id="viewTabs">
-  <button class="tab active" data-view="deposit">입금액</button>
-  <button class="tab" data-view="sales">판매액</button>
-  <button class="tab" data-view="both">전체</button>
+  <button class="tab active" data-view="both">전체</button>
+  <button class="tab" data-view="deposit">입금액</button>
+  <button class="tab" data-view="sales">정산액</button>
 </div>
 
 <div class="summary" id="summary"></div>
@@ -134,7 +116,7 @@ const PLATFORMS = [
 
 let curYear = new Date().getFullYear();
 let curMonth = new Date().getMonth();
-let viewMode = 'deposit';
+let viewMode = 'both';
 let data = {};
 let openDay = null;
 
@@ -214,7 +196,7 @@ function renderSummary() {
   }
   document.getElementById('summary').innerHTML = `
     <div class="metric"><div class="label">이번 달 총 입금액</div><div class="val" style="color:#3182ce">${fmt(totalDep)}</div></div>
-    <div class="metric"><div class="label">이번 달 총 판매액</div><div class="val" style="color:#38a169">${fmt(totalSal)}</div></div>
+    <div class="metric"><div class="label">이번 달 총 정산액</div><div class="val" style="color:#38a169">${fmt(totalSal)}</div></div>
   `;
   const maxVal = Math.max(...PLATFORMS.map(p => Math.max(byP[p.id].dep, byP[p.id].sal)), 1);
   document.getElementById('chartWrap').innerHTML = `
@@ -247,10 +229,10 @@ function renderCalendar() {
     const filtered = entries.filter(e => viewMode==='both' || e.type===viewMode);
     let totHtml = '';
     if (viewMode !== 'sales' && depTot > 0) totHtml += `<div class="day-total" style="color:#3182ce">입 ${depTot.toLocaleString()}</div>`;
-    if (viewMode !== 'deposit' && salTot > 0) totHtml += `<div class="day-total" style="color:#38a169">판 ${salTot.toLocaleString()}</div>`;
+    if (viewMode !== 'deposit' && salTot > 0) totHtml += `<div class="day-total" style="color:#38a169">정 ${salTot.toLocaleString()}</div>`;
     const entHtml = filtered.slice(0,3).map(e => {
       const p = PLATFORMS.find(x=>x.id===e.platform);
-      const typeLabel = e.type === 'deposit' ? '입' : '판';
+      const typeLabel = e.type === 'deposit' ? '입' : '정';
       const typeBg = e.type === 'deposit' ? '#dbeafe' : '#dcfce7';
       const typeColor = e.type === 'deposit' ? '#1d4ed8' : '#15803d';
       return `<div class="entry" style="background:${p.bg};color:${p.text};display:flex;align-items:center;gap:3px;">
@@ -285,7 +267,7 @@ function renderModalContent(d) {
       <label>구분</label>
       <select id="mType">
         <option value="deposit">입금액</option>
-        <option value="sales">판매액</option>
+        <option value="sales">정산액</option>
       </select>
     </div>
     <div class="form-row">
@@ -305,7 +287,7 @@ function renderModalContent(d) {
             <div class="entry-left">
               <div class="p-dot" style="background:${p.color}"></div>
               <span style="font-size:13px;font-weight:600">${p.name}</span>
-              <span class="type-badge" style="background:${e.type==='deposit'?'#EBF8FF':'#F0FFF4'};color:${e.type==='deposit'?'#2b6cb0':'#276749'}">${e.type==='deposit'?'입금':'판매'}</span>
+              <span class="type-badge" style="background:${e.type==='deposit'?'#EBF8FF':'#F0FFF4'};color:${e.type==='deposit'?'#2b6cb0':'#276749'}">${e.type==='deposit'?'입금':'정산'}</span>
             </div>
             <div style="display:flex;align-items:center;gap:8px">
               <span style="font-size:13px;font-weight:600">${e.amount.toLocaleString()}원</span>
