@@ -11,7 +11,6 @@
   .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .month-title { font-size: 20px; font-weight: 600; }
   .nav-btn { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 7px 16px; cursor: pointer; font-size: 14px; }
-  .nav-btn:hover { background: #f0f0f0; }
   .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
   .p-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 12px; border-radius: 20px; }
   .p-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -26,22 +25,21 @@
   .day-header { text-align: center; font-size: 12px; color: #888; padding: 6px 0; font-weight: 600; }
   .day-header.sun { color: #e53e3e; }
   .day-header.sat { color: #3182ce; }
-  .day-cell { background: #fff; border: 1px solid #eee; border-radius: 8px; min-height: 90px; padding: 6px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+  .day-cell { background: #fff; border: 1px solid #eee; border-radius: 8px; min-height: 90px; padding: 6px; cursor: pointer; transition: border-color 0.15s; }
   .day-cell:hover { border-color: #aaa; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-  .day-cell.empty { background: transparent; border-color: transparent; cursor: default; box-shadow: none; }
+  .day-cell.empty { background: transparent; border-color: transparent; cursor: default; }
   .day-cell.today { border-color: #3182ce; border-width: 2px; }
   .day-num { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
   .day-num.sun { color: #e53e3e; }
   .day-num.sat { color: #3182ce; }
   .day-total { font-size: 10px; font-weight: 600; margin-bottom: 2px; }
   .day-entries { display: flex; flex-direction: column; gap: 2px; }
-  .entry { font-size: 10px; padding: 1px 5px; border-radius: 3px; }
   .chart-section { background: #fff; border-radius: 12px; border: 1px solid #eee; padding: 16px; }
   .chart-title { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 12px; }
   .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .bar-label { width: 72px; color: #666; font-size: 11px; text-align: right; flex-shrink: 0; }
   .bar-track { flex: 1; height: 18px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+  .bar-fill { height: 100%; border-radius: 4px; }
   .bar-val { width: 90px; font-size: 11px; color: #333; }
   .loading-bar { display: flex; align-items: center; gap: 10px; background: #EBF8FF; border: 1px solid #bee3f8; border-radius: 8px; padding: 10px 16px; margin-bottom: 14px; font-size: 13px; color: #2b6cb0; }
   .spinner { width: 16px; height: 16px; border: 2px solid #bee3f8; border-top-color: #3182ce; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
@@ -51,7 +49,7 @@
   .modal { background: #fff; border-radius: 14px; padding: 24px; width: 380px; max-width: 95vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
   .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .modal-header h3 { font-size: 16px; font-weight: 600; }
-  .modal-close { background: none; border: 1px solid #ddd; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 16px; color: #666; display: flex; align-items: center; justify-content: center; }
+  .modal-close { background: none; border: 1px solid #ddd; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 16px; color: #666; }
   .form-row { margin-bottom: 12px; }
   .form-row label { display: block; font-size: 13px; color: #666; margin-bottom: 5px; }
   .form-row select, .form-row input { width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; }
@@ -94,7 +92,7 @@
 </div>
 <div id="toast"></div>
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwHGh4CbPwj-j0kZzS3c_lfvmDWPtNLGz1b-f8z2Qy878tM8NRchDThJ6gahsqd8ujq/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzYWr2laeVIzb361iNCEkGtABflXL0vVTpNFa4ZZXjRqJm-WYBVpQfY_l2faY29pp6d/exec';
 const PLATFORMS = [
   { id: 'coupang',  name: '쿠팡',        color: '#E53E3E', bg: '#FFF5F5', text: '#c53030' },
   { id: 'naver',    name: '스마트스토어', color: '#38A169', bg: '#F0FFF4', text: '#276749' },
@@ -143,7 +141,6 @@ async function removeEntry(rowIndex) {
 function key(y, m, d) { return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0'); }
 function fmt(n) { return n.toLocaleString('ko-KR') + '원'; }
 function getEntries(y, m, d) { return data[key(y, m, d)] || []; }
-
 function renderLegend() {
   document.getElementById('legend').innerHTML = PLATFORMS.map(p =>
     '<div class="p-badge" style="background:' + p.bg + ';border:1px solid ' + p.color + '33"><div class="p-dot" style="background:' + p.color + '"></div><span style="color:' + p.text + ';font-weight:600">' + p.name + '</span></div>'
@@ -193,7 +190,7 @@ function renderCalendar() {
       const tl = e.type==='deposit'?'입':'판';
       const tb = e.type==='deposit'?'#dbeafe':'#dcfce7';
       const tc = e.type==='deposit'?'#1d4ed8':'#15803d';
-      return '<div class="entry" style="background:' + p.bg + ';color:' + p.text + ';display:flex;align-items:center;gap:3px;"><span style="background:' + tb + ';color:' + tc + ';font-size:9px;font-weight:700;padding:0 3px;border-radius:2px;flex-shrink:0;">' + tl + '</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + p.name.slice(0,3) + ' ' + e.amount.toLocaleString() + '</span></div>';
+      return '<div style="font-size:10px;padding:1px 5px;border-radius:3px;background:' + p.bg + ';color:' + p.text + ';display:flex;align-items:center;gap:3px;"><span style="background:' + tb + ';color:' + tc + ';font-size:9px;font-weight:700;padding:0 3px;border-radius:2px;flex-shrink:0;">' + tl + '</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + p.name.slice(0,3) + ' ' + e.amount.toLocaleString() + '</span></div>';
     }).join('') + (filtered.length>3 ? '<div style="font-size:10px;color:#aaa">+' + (filtered.length-3) + '건</div>' : '');
     html += '<div class="day-cell' + (isToday?' today':'') + '" onclick="openModal(' + d + ')"><div class="day-num ' + (dow===0?'sun':dow===6?'sat':'') + '">' + d + '</div>' + totHtml + '<div class="day-entries">' + entHtml + '</div></div>';
   }
