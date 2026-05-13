@@ -35,7 +35,7 @@
   .day-num.sat { color: #3182ce; }
   .day-total { font-size: 10px; font-weight: 600; margin-bottom: 2px; }
   .day-entries { display: flex; flex-direction: column; gap: 2px; }
-  .entry { font-size: 10px; padding: 1px 5px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .entry { font-size: 10px; padding: 1px 5px; border-radius: 3px; }
   .chart-section { background: #fff; border-radius: 12px; border: 1px solid #eee; padding: 16px; }
   .chart-title { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 12px; }
   .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
@@ -52,16 +52,13 @@
   .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .modal-header h3 { font-size: 16px; font-weight: 600; }
   .modal-close { background: none; border: 1px solid #ddd; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 16px; color: #666; display: flex; align-items: center; justify-content: center; }
-  .modal-close:hover { background: #f5f5f5; }
   .form-row { margin-bottom: 12px; }
   .form-row label { display: block; font-size: 13px; color: #666; margin-bottom: 5px; }
   .form-row select, .form-row input { width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; }
   .modal-btns { display: flex; gap: 8px; margin-top: 14px; }
   .btn-primary { flex: 1; padding: 10px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; }
-  .btn-primary:hover { background: #333; }
   .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
   .btn-cancel { flex: 1; padding: 10px; background: #fff; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; }
-  .btn-cancel:hover { background: #f5f5f5; }
   .divider { border: none; border-top: 1px solid #eee; margin: 16px 0; }
   .entry-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 8px; background: #f8f8f8; margin-bottom: 7px; }
   .entry-left { display: flex; align-items: center; gap: 8px; }
@@ -74,7 +71,6 @@
 </style>
 </head>
 <body>
-
 <h1>🛒 쇼핑몰 정산 캘린더</h1>
 <div id="loadingBar" class="loading-bar"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
 <div class="header">
@@ -91,17 +87,14 @@
 <div class="summary" id="summary"></div>
 <div class="cal-grid" id="calGrid"></div>
 <div class="chart-section" id="chartWrap"></div>
-
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" onclick="event.stopPropagation()">
     <div id="modalContent"></div>
   </div>
 </div>
 <div id="toast"></div>
-
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypc6hhowlpOj-ReFqrTN0G7Eb332f47jhw9_han0-wd3Fk6ARGGEV_6myqGkHpaMs/exec';
-
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwHGh4CbPwj-j0kZzS3c_lfvmDWPtNLGz1b-f8z2Qy878tM8NRchDThJ6gahsqd8ujq/exec';
 const PLATFORMS = [
   { id: 'coupang',  name: '쿠팡',        color: '#E53E3E', bg: '#FFF5F5', text: '#c53030' },
   { id: 'naver',    name: '스마트스토어', color: '#38A169', bg: '#F0FFF4', text: '#276749' },
@@ -109,7 +102,6 @@ const PLATFORMS = [
   { id: '11st',     name: '11번가',      color: '#DD6B20', bg: '#FFFAF0', text: '#c05621' },
   { id: 'toss',     name: '토스',        color: '#3182CE', bg: '#EBF8FF', text: '#2b6cb0' },
 ];
-
 let curYear = new Date().getFullYear();
 let curMonth = new Date().getMonth();
 let viewMode = 'both';
@@ -118,59 +110,45 @@ let openDay = null;
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
-
 function showLoading(show) {
   document.getElementById('loadingBar').style.display = show ? 'flex' : 'none';
 }
-
 function jsonp(url) {
   return new Promise((resolve, reject) => {
     const cbName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
     const script = document.createElement('script');
     window[cbName] = (d) => { resolve(d); delete window[cbName]; script.remove(); };
     script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
-    script.onerror = () => { reject(new Error('실패')); delete window[cbName]; script.remove(); };
+    script.onerror = () => { reject(new Error('fail')); delete window[cbName]; script.remove(); };
     document.head.appendChild(script);
   });
 }
-
 async function loadData() {
   showLoading(true);
   try {
-    const result = await jsonp(`${SCRIPT_URL}?action=getAll`);
-    data = result;
-  } catch(e) {
-    showToast('❌ 데이터 불러오기 실패');
-  }
+    data = await jsonp(SCRIPT_URL + '?action=getAll');
+  } catch(e) { showToast('데이터 불러오기 실패'); }
   showLoading(false);
   renderCalendar();
 }
-
 async function saveEntry(date, platform, type, amount) {
-  return await jsonp(`${SCRIPT_URL}?action=add&date=${encodeURIComponent(date)}&platform=${encodeURIComponent(platform)}&type=${encodeURIComponent(type)}&amount=${encodeURIComponent(amount)}`);
+  return await jsonp(SCRIPT_URL + '?action=add&date=' + encodeURIComponent(date) + '&platform=' + encodeURIComponent(platform) + '&type=' + encodeURIComponent(type) + '&amount=' + encodeURIComponent(amount));
 }
-
 async function removeEntry(rowIndex) {
-  return await jsonp(`${SCRIPT_URL}?action=delete&rowIndex=${rowIndex}`);
+  return await jsonp(SCRIPT_URL + '?action=delete&rowIndex=' + rowIndex);
 }
-
-function key(y, m, d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function key(y, m, d) { return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0'); }
 function fmt(n) { return n.toLocaleString('ko-KR') + '원'; }
 function getEntries(y, m, d) { return data[key(y, m, d)] || []; }
 
 function renderLegend() {
   document.getElementById('legend').innerHTML = PLATFORMS.map(p =>
-    `<div class="p-badge" style="background:${p.bg};border:1px solid ${p.color}33">
-      <div class="p-dot" style="background:${p.color}"></div>
-      <span style="color:${p.text};font-weight:600">${p.name}</span>
-    </div>`
+    '<div class="p-badge" style="background:' + p.bg + ';border:1px solid ' + p.color + '33"><div class="p-dot" style="background:' + p.color + '"></div><span style="color:' + p.text + ';font-weight:600">' + p.name + '</span></div>'
   ).join('');
 }
-
 function renderSummary() {
   const days = new Date(curYear, curMonth+1, 0).getDate();
   let totalDep = 0, totalSal = 0;
@@ -182,32 +160,24 @@ function renderSummary() {
       else { totalSal += e.amount; byP[e.platform].sal += e.amount; }
     });
   }
-  document.getElementById('summary').innerHTML = `
-    <div class="metric"><div class="label">이번 달 총 입금액</div><div class="val" style="color:#3182ce">${fmt(totalDep)}</div></div>
-    <div class="metric"><div class="label">이번 달 총 판매액</div><div class="val" style="color:#38a169">${fmt(totalSal)}</div></div>
-  `;
+  document.getElementById('summary').innerHTML =
+    '<div class="metric"><div class="label">이번 달 총 입금액</div><div class="val" style="color:#3182ce">' + fmt(totalDep) + '</div></div>' +
+    '<div class="metric"><div class="label">이번 달 총 판매액</div><div class="val" style="color:#38a169">' + fmt(totalSal) + '</div></div>';
   const maxVal = Math.max(...PLATFORMS.map(p => Math.max(byP[p.id].dep, byP[p.id].sal)), 1);
-  document.getElementById('chartWrap').innerHTML = `
-    <div class="chart-title">플랫폼별 현황</div>
-    ${PLATFORMS.map(p => {
+  document.getElementById('chartWrap').innerHTML = '<div class="chart-title">플랫폼별 현황</div>' +
+    PLATFORMS.map(p => {
       const val = viewMode === 'deposit' ? byP[p.id].dep : viewMode === 'sales' ? byP[p.id].sal : byP[p.id].dep + byP[p.id].sal;
-      return `<div class="bar-row">
-        <div class="bar-label">${p.name}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(val/maxVal*100)}%;background:${p.color}"></div></div>
-        <div class="bar-val">${fmt(val)}</div>
-      </div>`;
-    }).join('')}
-  `;
+      return '<div class="bar-row"><div class="bar-label">' + p.name + '</div><div class="bar-track"><div class="bar-fill" style="width:' + Math.round(val/maxVal*100) + '%;background:' + p.color + '"></div></div><div class="bar-val">' + fmt(val) + '</div></div>';
+    }).join('');
 }
-
 function renderCalendar() {
-  document.getElementById('monthLabel').textContent = `${curYear}년 ${curMonth+1}월`;
+  document.getElementById('monthLabel').textContent = curYear + '년 ' + (curMonth+1) + '월';
   const firstDay = new Date(curYear, curMonth, 1).getDay();
   const daysInMonth = new Date(curYear, curMonth+1, 0).getDate();
   const today = new Date();
-  const days = ['일','월','화','수','목','금','토'];
-  let html = days.map((d,i) => `<div class="day-header ${i===0?'sun':i===6?'sat':''}">${d}</div>`).join('');
-  for (let i = 0; i < firstDay; i++) html += `<div class="day-cell empty"></div>`;
+  const dayNames = ['일','월','화','수','목','금','토'];
+  let html = dayNames.map((d,i) => '<div class="day-header ' + (i===0?'sun':i===6?'sat':'') + '">' + d + '</div>').join('');
+  for (let i = 0; i < firstDay; i++) html += '<div class="day-cell empty"></div>';
   for (let d = 1; d <= daysInMonth; d++) {
     const entries = getEntries(curYear, curMonth, d);
     const dow = new Date(curYear, curMonth, d).getDay();
@@ -216,107 +186,56 @@ function renderCalendar() {
     const salTot = entries.filter(e=>e.type==='sales').reduce((s,e)=>s+e.amount,0);
     const filtered = entries.filter(e => viewMode==='both' || e.type===viewMode);
     let totHtml = '';
-    if (viewMode !== 'sales' && depTot > 0) totHtml += `<div class="day-total" style="color:#3182ce">입 ${depTot.toLocaleString()}</div>`;
-    if (viewMode !== 'deposit' && salTot > 0) totHtml += `<div class="day-total" style="color:#38a169">판 ${salTot.toLocaleString()}</div>`;
+    if (viewMode !== 'sales' && depTot > 0) totHtml += '<div class="day-total" style="color:#3182ce">입 ' + depTot.toLocaleString() + '</div>';
+    if (viewMode !== 'deposit' && salTot > 0) totHtml += '<div class="day-total" style="color:#38a169">판 ' + salTot.toLocaleString() + '</div>';
     const entHtml = filtered.slice(0,3).map(e => {
       const p = PLATFORMS.find(x=>x.id===e.platform);
-      const typeLabel = e.type === 'deposit' ? '입' : '판';
-      const typeBg = e.type === 'deposit' ? '#dbeafe' : '#dcfce7';
-      const typeColor = e.type === 'deposit' ? '#1d4ed8' : '#15803d';
-      return `<div class="entry" style="background:${p.bg};color:${p.text};display:flex;align-items:center;gap:3px;">
-        <span style="background:${typeBg};color:${typeColor};font-size:9px;font-weight:700;padding:0 3px;border-radius:2px;flex-shrink:0;">${typeLabel}</span>
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name.slice(0,3)} ${e.amount.toLocaleString()}</span>
-      </div>`;
-    }).join('') + (filtered.length>3 ? `<div style="font-size:10px;color:#aaa">+${filtered.length-3}건</div>` : '');
-    html += `<div class="day-cell${isToday?' today':''}" onclick="openModal(${d})">
-      <div class="day-num ${dow===0?'sun':dow===6?'sat':''}">${d}</div>
-      ${totHtml}
-      <div class="day-entries">${entHtml}</div>
-    </div>`;
+      const tl = e.type==='deposit'?'입':'판';
+      const tb = e.type==='deposit'?'#dbeafe':'#dcfce7';
+      const tc = e.type==='deposit'?'#1d4ed8':'#15803d';
+      return '<div class="entry" style="background:' + p.bg + ';color:' + p.text + ';display:flex;align-items:center;gap:3px;"><span style="background:' + tb + ';color:' + tc + ';font-size:9px;font-weight:700;padding:0 3px;border-radius:2px;flex-shrink:0;">' + tl + '</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + p.name.slice(0,3) + ' ' + e.amount.toLocaleString() + '</span></div>';
+    }).join('') + (filtered.length>3 ? '<div style="font-size:10px;color:#aaa">+' + (filtered.length-3) + '건</div>' : '');
+    html += '<div class="day-cell' + (isToday?' today':'') + '" onclick="openModal(' + d + ')"><div class="day-num ' + (dow===0?'sun':dow===6?'sat':'') + '">' + d + '</div>' + totHtml + '<div class="day-entries">' + entHtml + '</div></div>';
   }
   const rem = (firstDay + daysInMonth) % 7;
-  if (rem !== 0) for (let i = 0; i < 7-rem; i++) html += `<div class="day-cell empty"></div>`;
+  if (rem !== 0) for (let i = 0; i < 7-rem; i++) html += '<div class="day-cell empty"></div>';
   document.getElementById('calGrid').innerHTML = html;
   renderSummary();
 }
-
 function renderModalContent(d) {
   const ent = getEntries(curYear, curMonth, d);
-  document.getElementById('modalContent').innerHTML = `
-    <div class="modal-header">
-      <h3>${curYear}년 ${curMonth+1}월 ${d}일</h3>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="form-row">
-      <label>플랫폼</label>
-      <select id="mPlatform">${PLATFORMS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select>
-    </div>
-    <div class="form-row">
-      <label>구분</label>
-      <select id="mType">
-        <option value="sales">판매액</option>
-        <option value="deposit">입금액</option>
-      </select>
-    </div>
-    <div class="form-row">
-      <label>금액 (원)</label>
-      <input type="number" id="mAmount" placeholder="예: 150000" min="0" step="100">
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal()">닫기</button>
-      <button class="btn-primary" id="addBtn" onclick="addEntry(${d})">추가</button>
-    </div>
-    <hr class="divider">
-    ${ent.length === 0
-      ? '<div class="empty-msg">등록된 내역이 없습니다</div>'
-      : ent.map((e) => {
-          const p = PLATFORMS.find(x=>x.id===e.platform);
-          return `<div class="entry-item">
-            <div class="entry-left">
-              <div class="p-dot" style="background:${p.color}"></div>
-              <span style="font-size:13px;font-weight:600">${p.name}</span>
-              <span class="type-badge" style="background:${e.type==='deposit'?'#EBF8FF':'#F0FFF4'};color:${e.type==='deposit'?'#2b6cb0':'#276749'}">${e.type==='deposit'?'입금':'판매'}</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:13px;font-weight:600">${e.amount.toLocaleString()}원</span>
-              <button class="del-btn" onclick="delEntry(${d},${e.rowIndex})">✕</button>
-            </div>
-          </div>`;
-        }).join('')}
-  `;
+  document.getElementById('modalContent').innerHTML =
+    '<div class="modal-header"><h3>' + curYear + '년 ' + (curMonth+1) + '월 ' + d + '일</h3><button class="modal-close" onclick="closeModal()">✕</button></div>' +
+    '<div class="form-row"><label>플랫폼</label><select id="mPlatform">' + PLATFORMS.map(p=>'<option value="' + p.id + '">' + p.name + '</option>').join('') + '</select></div>' +
+    '<div class="form-row"><label>구분</label><select id="mType"><option value="sales">판매액</option><option value="deposit">입금액</option></select></div>' +
+    '<div class="form-row"><label>금액 (원)</label><input type="number" id="mAmount" placeholder="예: 150000" min="0" step="100"></div>' +
+    '<div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">닫기</button><button class="btn-primary" id="addBtn" onclick="addEntry(' + d + ')">추가</button></div>' +
+    '<hr class="divider">' +
+    (ent.length === 0 ? '<div class="empty-msg">등록된 내역이 없습니다</div>' :
+      ent.map(e => {
+        const p = PLATFORMS.find(x=>x.id===e.platform);
+        return '<div class="entry-item"><div class="entry-left"><div class="p-dot" style="background:' + p.color + '"></div><span style="font-size:13px;font-weight:600">' + p.name + '</span><span class="type-badge" style="background:' + (e.type==='deposit'?'#EBF8FF':'#F0FFF4') + ';color:' + (e.type==='deposit'?'#2b6cb0':'#276749') + '">' + (e.type==='deposit'?'입금':'판매') + '</span></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600">' + e.amount.toLocaleString() + '원</span><button class="del-btn" onclick="delEntry(' + d + ',' + e.rowIndex + ')">✕</button></div></div>';
+      }).join(''));
 }
-
-function openModal(d) {
-  openDay = d;
-  renderModalContent(d);
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  openDay = null;
-}
-
+function openModal(d) { openDay = d; renderModalContent(d); document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); openDay = null; }
 async function addEntry(d) {
   const platform = document.getElementById('mPlatform').value;
   const type = document.getElementById('mType').value;
   const amount = parseInt(document.getElementById('mAmount').value);
   if (!amount || amount <= 0) { alert('금액을 입력해주세요'); return; }
   const btn = document.getElementById('addBtn');
-  btn.disabled = true;
-  btn.textContent = '저장 중...';
+  btn.disabled = true; btn.textContent = '저장 중...';
   try {
     await saveEntry(key(curYear, curMonth, d), platform, type, amount);
     await loadData();
     if (openDay) renderModalContent(openDay);
     showToast('✅ 저장 완료!');
   } catch(e) {
-    showToast('❌ 저장 실패. 다시 시도해주세요.');
-    btn.disabled = false;
-    btn.textContent = '추가';
+    showToast('❌ 저장 실패');
+    btn.disabled = false; btn.textContent = '추가';
   }
 }
-
 async function delEntry(d, rowIndex) {
   if (!confirm('삭제하시겠습니까?')) return;
   try {
@@ -324,11 +243,8 @@ async function delEntry(d, rowIndex) {
     await loadData();
     if (openDay) renderModalContent(openDay);
     showToast('🗑️ 삭제 완료!');
-  } catch(e) {
-    showToast('❌ 삭제 실패.');
-  }
+  } catch(e) { showToast('❌ 삭제 실패'); }
 }
-
 document.getElementById('prevBtn').onclick = () => { curMonth--; if(curMonth<0){curMonth=11;curYear--;} renderCalendar(); };
 document.getElementById('nextBtn').onclick = () => { curMonth++; if(curMonth>11){curMonth=0;curYear++;} renderCalendar(); };
 document.getElementById('modalOverlay').onclick = closeModal;
@@ -338,7 +254,6 @@ document.getElementById('viewTabs').addEventListener('click', e => {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view===viewMode));
   renderCalendar();
 });
-
 renderLegend();
 loadData();
 </script>
