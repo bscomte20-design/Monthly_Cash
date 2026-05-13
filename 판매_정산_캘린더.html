@@ -8,25 +8,20 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; padding: 24px 16px; }
   h1 { font-size: 22px; font-weight: 600; margin-bottom: 20px; }
-
   .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .month-title { font-size: 20px; font-weight: 600; }
   .nav-btn { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 7px 16px; cursor: pointer; font-size: 14px; }
   .nav-btn:hover { background: #f0f0f0; }
-
   .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
   .p-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 12px; border-radius: 20px; }
   .p-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
   .tab-row { display: flex; gap: 6px; margin-bottom: 14px; }
   .tab { padding: 7px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid #ddd; background: #fff; color: #666; }
   .tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
-
   .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
   .metric { background: #fff; border-radius: 10px; padding: 12px 16px; border: 1px solid #eee; }
   .metric .label { font-size: 12px; color: #888; margin-bottom: 4px; }
   .metric .val { font-size: 20px; font-weight: 600; }
-
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 20px; }
   .day-header { text-align: center; font-size: 12px; color: #888; padding: 6px 0; font-weight: 600; }
   .day-header.sun { color: #e53e3e; }
@@ -41,7 +36,6 @@
   .day-total { font-size: 10px; font-weight: 600; margin-bottom: 2px; }
   .day-entries { display: flex; flex-direction: column; gap: 2px; }
   .entry { font-size: 10px; padding: 1px 5px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
   .chart-section { background: #fff; border-radius: 12px; border: 1px solid #eee; padding: 16px; }
   .chart-title { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 12px; }
   .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
@@ -49,13 +43,9 @@
   .bar-track { flex: 1; height: 18px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
   .bar-val { width: 90px; font-size: 11px; color: #333; }
-
-  /* 로딩 */
   .loading-bar { display: flex; align-items: center; gap: 10px; background: #EBF8FF; border: 1px solid #bee3f8; border-radius: 8px; padding: 10px 16px; margin-bottom: 14px; font-size: 13px; color: #2b6cb0; }
   .spinner { width: 16px; height: 16px; border: 2px solid #bee3f8; border-top-color: #3182ce; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Modal */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
   .modal { background: #fff; border-radius: 14px; padding: 24px; width: 380px; max-width: 95vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
@@ -66,7 +56,6 @@
   .form-row { margin-bottom: 12px; }
   .form-row label { display: block; font-size: 13px; color: #666; margin-bottom: 5px; }
   .form-row select, .form-row input { width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; }
-  .form-row select:focus, .form-row input:focus { outline: none; border-color: #1a1a1a; }
   .modal-btns { display: flex; gap: 8px; margin-top: 14px; }
   .btn-primary { flex: 1; padding: 10px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-family: inherit; }
   .btn-primary:hover { background: #333; }
@@ -80,8 +69,6 @@
   .del-btn { background: none; border: none; color: #aaa; cursor: pointer; font-size: 16px; padding: 0 4px; }
   .del-btn:hover { color: #e53e3e; }
   .empty-msg { font-size: 13px; color: #aaa; text-align: center; padding: 12px 0; }
-
-  /* 토스트 */
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 999; }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
@@ -89,48 +76,38 @@
 <body>
 
 <h1>🛒 쇼핑몰 정산 캘린더</h1>
-
-<div id="loadingBar" class="loading-bar">
-  <div class="spinner"></div>
-  <span>데이터 불러오는 중...</span>
-</div>
-
+<div id="loadingBar" class="loading-bar"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
 <div class="header">
   <button class="nav-btn" id="prevBtn">◀ 이전달</button>
   <div class="month-title" id="monthLabel"></div>
   <button class="nav-btn" id="nextBtn">다음달 ▶</button>
 </div>
-
 <div class="legend" id="legend"></div>
-
 <div class="tab-row" id="viewTabs">
   <button class="tab active" data-view="both">전체</button>
   <button class="tab" data-view="sales">판매액</button>
   <button class="tab" data-view="deposit">입금액</button>
 </div>
-
 <div class="summary" id="summary"></div>
 <div class="cal-grid" id="calGrid"></div>
 <div class="chart-section" id="chartWrap"></div>
 
-<!-- Modal -->
 <div class="modal-overlay" id="modalOverlay">
-  <div class="modal" id="modalBox" onclick="event.stopPropagation()">
+  <div class="modal" onclick="event.stopPropagation()">
     <div id="modalContent"></div>
   </div>
 </div>
-
 <div id="toast"></div>
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypc6hhowlpOj-ReFqrTN0G7Eb332f47jhw9_han0-wd3Fk6ARGGEV_6myqGkHpaMs/exec';
 
 const PLATFORMS = [
-  { id: 'coupang',  name: '쿠팡',         color: '#E53E3E', bg: '#FFF5F5', text: '#c53030' },
-  { id: 'naver',    name: '스마트스토어',  color: '#38A169', bg: '#F0FFF4', text: '#276749' },
-  { id: 'gauction', name: 'G옥션',        color: '#D69E2E', bg: '#FFFFF0', text: '#b7791f' },
-  { id: '11st',     name: '11번가',       color: '#DD6B20', bg: '#FFFAF0', text: '#c05621' },
-  { id: 'toss',     name: '토스',         color: '#3182CE', bg: '#EBF8FF', text: '#2b6cb0' },
+  { id: 'coupang',  name: '쿠팡',        color: '#E53E3E', bg: '#FFF5F5', text: '#c53030' },
+  { id: 'naver',    name: '스마트스토어', color: '#38A169', bg: '#F0FFF4', text: '#276749' },
+  { id: 'gauction', name: 'G옥션',       color: '#D69E2E', bg: '#FFFFF0', text: '#b7791f' },
+  { id: '11st',     name: '11번가',      color: '#DD6B20', bg: '#FFFAF0', text: '#c05621' },
+  { id: 'toss',     name: '토스',        color: '#3182CE', bg: '#EBF8FF', text: '#2b6cb0' },
 ];
 
 let curYear = new Date().getFullYear();
@@ -138,7 +115,6 @@ let curMonth = new Date().getMonth();
 let viewMode = 'both';
 let data = {};
 let openDay = null;
-let isLoading = false;
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -149,39 +125,37 @@ function showToast(msg) {
 
 function showLoading(show) {
   document.getElementById('loadingBar').style.display = show ? 'flex' : 'none';
-  isLoading = show;
 }
 
-// Google Sheets에서 전체 데이터 불러오기
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    window[cbName] = (d) => { resolve(d); delete window[cbName]; script.remove(); };
+    script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
+    script.onerror = () => { reject(new Error('실패')); delete window[cbName]; script.remove(); };
+    document.head.appendChild(script);
+  });
+}
+
 async function loadData() {
   showLoading(true);
   try {
-    const res = await fetch(`${SCRIPT_URL}?action=getAll`);
-    const json = await res.json();
-    data = json;
+    const result = await jsonp(`${SCRIPT_URL}?action=getAll`);
+    data = result;
   } catch(e) {
-    showToast('❌ 데이터 불러오기 실패. 새로고침 해주세요.');
+    showToast('❌ 데이터 불러오기 실패');
   }
   showLoading(false);
   renderCalendar();
 }
 
-// Google Sheets에 데이터 추가
 async function saveEntry(date, platform, type, amount) {
-  const res = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'add', date, platform, type, amount })
-  });
-  return res.text();
+  return await jsonp(`${SCRIPT_URL}?action=add&date=${encodeURIComponent(date)}&platform=${encodeURIComponent(platform)}&type=${encodeURIComponent(type)}&amount=${encodeURIComponent(amount)}`);
 }
 
-// Google Sheets에서 데이터 삭제
-async function deleteEntry(rowIndex) {
-  const res = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'delete', rowIndex })
-  });
-  return res.text();
+async function removeEntry(rowIndex) {
+  return await jsonp(`${SCRIPT_URL}?action=delete&rowIndex=${rowIndex}`);
 }
 
 function key(y, m, d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
@@ -295,7 +269,7 @@ function renderModalContent(d) {
     <hr class="divider">
     ${ent.length === 0
       ? '<div class="empty-msg">등록된 내역이 없습니다</div>'
-      : ent.map((e,i) => {
+      : ent.map((e) => {
           const p = PLATFORMS.find(x=>x.id===e.platform);
           return `<div class="entry-item">
             <div class="entry-left">
@@ -305,7 +279,7 @@ function renderModalContent(d) {
             </div>
             <div style="display:flex;align-items:center;gap:8px">
               <span style="font-size:13px;font-weight:600">${e.amount.toLocaleString()}원</span>
-              <button class="del-btn" onclick="delEntry(${d},${i},${e.rowIndex})">✕</button>
+              <button class="del-btn" onclick="delEntry(${d},${e.rowIndex})">✕</button>
             </div>
           </div>`;
         }).join('')}
@@ -328,18 +302,11 @@ async function addEntry(d) {
   const type = document.getElementById('mType').value;
   const amount = parseInt(document.getElementById('mAmount').value);
   if (!amount || amount <= 0) { alert('금액을 입력해주세요'); return; }
-
   const btn = document.getElementById('addBtn');
   btn.disabled = true;
   btn.textContent = '저장 중...';
-
   try {
-    const dateKey = key(curYear, curMonth, d);
-    await saveEntry(dateKey, platform, type, amount);
-    // 로컬 데이터도 즉시 반영
-    if (!data[dateKey]) data[dateKey] = [];
-    data[dateKey].push({ platform, type, amount, rowIndex: null });
-    // 최신 데이터 다시 불러오기
+    await saveEntry(key(curYear, curMonth, d), platform, type, amount);
     await loadData();
     if (openDay) renderModalContent(openDay);
     showToast('✅ 저장 완료!');
@@ -350,15 +317,15 @@ async function addEntry(d) {
   }
 }
 
-async function delEntry(d, i, rowIndex) {
+async function delEntry(d, rowIndex) {
   if (!confirm('삭제하시겠습니까?')) return;
   try {
-    await deleteEntry(rowIndex);
+    await removeEntry(rowIndex);
     await loadData();
     if (openDay) renderModalContent(openDay);
     showToast('🗑️ 삭제 완료!');
   } catch(e) {
-    showToast('❌ 삭제 실패. 다시 시도해주세요.');
+    showToast('❌ 삭제 실패.');
   }
 }
 
@@ -372,7 +339,6 @@ document.getElementById('viewTabs').addEventListener('click', e => {
   renderCalendar();
 });
 
-showLoading(true);
 renderLegend();
 loadData();
 </script>
